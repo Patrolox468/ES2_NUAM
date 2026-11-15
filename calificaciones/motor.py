@@ -4,8 +4,11 @@ Python puro: no depende de Django ni de la base de datos, para poder probarlo
 solo y con rapidez. Toda la aritmética usa ``Decimal`` (nunca ``float``) para
 evitar errores de representación sobre montos tributarios.
 
+REGLA DEL HDU (hoja 3):
+  * Divisor: la suma de los montos de las columnas 8 a 19 (si no se informa un
+    monto base).
+
 HIPÓTESIS DE TRABAJO (pendientes de confirmar con el cliente, informe sec. 9):
-  * Divisor: si no se informa un monto base, es la suma de los montos informados.
   * Redondeo: por defecto se trunca a ocho decimales (el truncamiento garantiza
     que la suma de factores no supere 1 por efecto del redondeo).
 """
@@ -49,6 +52,12 @@ def parsear_monto(texto):
     if valor.as_tuple().exponent < -MAX_DECIMALES_MONTO:
         raise ErrorCalculo(f"el monto admite como máximo {MAX_DECIMALES_MONTO} decimales")
     return valor
+
+
+def suma_divisor(montos, columnas=(8, 19)):
+    """Suma los montos de las columnas que forman el divisor (8 a 19 según el HDU)."""
+    desde, hasta = columnas
+    return sum((monto for columna, monto in montos.items() if desde <= columna <= hasta), Decimal(0))
 
 
 def calcular_factores(montos, modo="truncar", decimales=DECIMALES, divisor=None):
