@@ -68,6 +68,12 @@ def calcular(montos, monto_base=None):
         )
     except motor.ErrorCalculo as error:
         raise ErrorValidacion(str(error)) from error
+
+    # HDU hoja 3: ningún factor puede ser mayor que 1
+    mayores = [columna for columna, factor in factores.items() if factor > 1]
+    if mayores:
+        raise ErrorValidacion(f"Ningún factor puede ser mayor que 1. Revisa las columnas: {mayores}.")
+
     return factores, motor.validar_suma(factores, settings.COLUMNAS_SUMA_REGLA)
 
 
