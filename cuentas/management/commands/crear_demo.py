@@ -26,7 +26,7 @@ CALIFICACIONES = [
     ("ACCION-ALFA", Mercado.ACCIONES, 1, Origen.CORREDOR, {8: 1000000, 9: 1000000, 10: 1000000}),
     ("ACCION-DELTA", Mercado.ACCIONES, 2, Origen.BOLSA, {8: 400000, 9: 350000, 10: 250000}),
     ("CFI-BETA", Mercado.CFI, 1, Origen.CORREDOR, {8: 500000, 9: 500000}),
-    ("FM-GAMMA", Mercado.FONDOS_MUTUOS, 1, Origen.BOLSA, {c: 500000 for c in range(8, 14)}),
+    ("FM-GAMMA", Mercado.FONDOS_MUTUOS, 1, Origen.BOLSA, {c: 500000 for c in range(8, 13)}),
 ]
 
 
