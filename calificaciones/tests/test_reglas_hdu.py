@@ -70,3 +70,35 @@ class ReglasHduTests(TestCase):
 
         self.assertIn("mayor que 1", error.exception.mensajes[0])
         self.assertEqual(Calificacion.objects.count(), 0)
+
+
+class CasosDeBordeTests(TestCase):
+    """Casos de borde del cálculo (presentación ES3, «Casos de borde»)."""
+
+    def test_monto_en_cero_es_valido(self):
+        factores, _ = services.calcular({8: D(100), 9: D(0)})
+        self.assertEqual(factores[9], D("0.00000000"))
+
+    def test_total_en_cero_no_se_puede_calcular(self):
+        """Si los montos 8 a 19 suman 0 no hay división (el HDU muestra #DIV/0!)."""
+        with self.assertRaises(services.ErrorValidacion) as error:
+            services.calcular({8: D(0), 9: D(0), 25: D(500)})
+        self.assertIn("es 0", error.exception.mensajes[0])
+
+    def test_seis_montos_iguales_suman_mas_de_1_por_el_redondeo(self):
+        """Seis montos iguales dan 0,16666667 cada uno y suman 1,00000002: no cumple."""
+        _, resultado = services.calcular({c: D(500000) for c in range(8, 14)})
+        self.assertEqual(resultado.suma, D("1.00000002"))
+        self.assertFalse(resultado.cumple)
+
+    def test_un_factor_mayor_que_1_se_rechaza(self):
+        """El factor 25 sería 5 (500 / 100): ningún factor puede pasar de 1."""
+        with self.assertRaises(services.ErrorValidacion) as error:
+            services.calcular({8: D(100), 25: D(500)})
+        self.assertIn("mayor que 1", error.exception.mensajes[0])
+
+    def test_factores_34_a_37_usan_la_misma_formula(self):
+        """Decisión del grupo: los factores 34 a 37 se calculan igual (monto / suma 8 a 19)."""
+        factores, _ = services.calcular({8: D(100), 34: D(50), 37: D(25)})
+        self.assertEqual(factores[34], D("0.50000000"))
+        self.assertEqual(factores[37], D("0.25000000"))
