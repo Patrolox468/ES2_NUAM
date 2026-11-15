@@ -7,10 +7,9 @@ evitar errores de representación sobre montos tributarios.
 REGLA DEL HDU (hoja 3):
   * Divisor: la suma de los montos de las columnas 8 a 19 (si no se informa un
     monto base).
-
-HIPÓTESIS DE TRABAJO (pendientes de confirmar con el cliente, informe sec. 9):
-  * Redondeo: por defecto se trunca a ocho decimales (el truncamiento garantiza
-    que la suma de factores no supere 1 por efecto del redondeo).
+  * Redondeo: por defecto se redondea a ocho decimales (medio hacia arriba),
+    igual que el ejemplo resuelto del HDU (hoja 3.2). El modo "truncar" sigue
+    disponible con la variable FACTORES_MODO_REDONDEO.
 """
 import re
 from dataclasses import dataclass
