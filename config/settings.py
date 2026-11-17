@@ -86,8 +86,11 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 FACTORES_DECIMALES = 8
-FACTORES_MODO_REDONDEO = os.environ.get("FACTORES_MODO_REDONDEO", "truncar")
+# Se redondea (medio hacia arriba) para obtener los mismos factores del ejemplo del HDU (hoja 3.2)
+FACTORES_MODO_REDONDEO = os.environ.get("FACTORES_MODO_REDONDEO", "redondear")
 COLUMNAS_FACTOR = (8, 37)
+# HDU hoja 3: cada factor = monto / suma de los montos de las columnas 8 a 19
+COLUMNAS_DIVISOR = (8, 19)
 COLUMNAS_SUMA_REGLA = (8, 16)
 CARGA_MAX_FILAS = 5000
 CARGA_MAX_BYTES = 2_000_000

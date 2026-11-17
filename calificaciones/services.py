@@ -49,6 +49,16 @@ def calcular(montos, monto_base=None):
     fuera = [c for c in montos if not desde <= c <= hasta]
     if fuera:
         raise ErrorValidacion(f"Las columnas deben estar entre {desde} y {hasta}: {sorted(fuera)}")
+
+    # Divisor del HDU: la suma de los montos de las columnas 8 a 19
+    if monto_base is None:
+        inicio, fin = settings.COLUMNAS_DIVISOR
+        monto_base = motor.suma_divisor(montos, settings.COLUMNAS_DIVISOR)
+        if montos and monto_base == 0:
+            raise ErrorValidacion(
+                f"La suma de los montos de las columnas {inicio} a {fin} es 0: "
+                "no se pueden calcular los factores."
+            )
     try:
         factores = motor.calcular_factores(
             montos,
@@ -58,6 +68,12 @@ def calcular(montos, monto_base=None):
         )
     except motor.ErrorCalculo as error:
         raise ErrorValidacion(str(error)) from error
+
+    # HDU hoja 3: ningún factor puede ser mayor que 1
+    mayores = [columna for columna, factor in factores.items() if factor > 1]
+    if mayores:
+        raise ErrorValidacion(f"Ningún factor puede ser mayor que 1. Revisa las columnas: {mayores}.")
+
     return factores, motor.validar_suma(factores, settings.COLUMNAS_SUMA_REGLA)
 
 

@@ -73,6 +73,7 @@ class ServiciosTests(TestCase):
         with self.assertRaises(services.ErrorValidacion):
             self.guardar(montos=montos)
 
+    @override_settings(FACTORES_MODO_REDONDEO="truncar")
     def test_con_truncamiento_seis_columnas_iguales_se_guardan(self):
         montos = {c: D(500000) for c in range(8, 14)}
         self.assertEqual(self.guardar(montos=montos).calificacion.suma_factores, D("0.99999996"))
