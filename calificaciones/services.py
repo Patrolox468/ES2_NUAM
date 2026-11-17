@@ -14,7 +14,7 @@ from bitacora.models import Registro
 from bitacora.servicios import registrar
 
 from . import motor
-from .models import Calificacion, Mercado, Origen
+from .models import Calificacion, DetalleFactor, Mercado, Origen
 
 
 class ErrorValidacion(Exception):
@@ -93,6 +93,15 @@ def _texto(monto):
     return format(monto, "f")
 
 
+def _guardar_detalles(calificacion, montos, factores):
+    """Deja en la tabla de detalle una fila por columna informada (reemplaza las anteriores)."""
+    calificacion.detalles.all().delete()
+    DetalleFactor.objects.bulk_create(
+        DetalleFactor(calificacion=calificacion, columna=columna, monto=monto, factor=factores[columna])
+        for columna, monto in sorted(montos.items())
+    )
+
+
 def _describir_cambios(existente, montos, monto_base, origen, suma):
     cambios = []
     anteriores = existente.montos_decimal
@@ -165,8 +174,6 @@ def guardar_calificacion(
             "prevalece sobre el dato base de Bolsa."
         )
 
-    montos_json = {str(c): _texto(m) for c, m in sorted(montos.items())}
-    factores_json = {str(c): motor.a_texto(f) for c, f in factores.items()}
     suma = resultado.suma
     prefijo = f"{ejercicio} · {Mercado(mercado).label}. "
 
@@ -174,13 +181,12 @@ def guardar_calificacion(
         calificacion = Calificacion.objects.create(
             **llave,
             origen=origen,
-            montos=montos_json,
             monto_base=monto_base,
-            factores=factores_json,
             suma_factores=suma,
             creada_por=usuario,
             modificada_por=usuario,
         )
+        _guardar_detalles(calificacion, montos, factores)
         registrar(
             usuario,
             Registro.Operacion.INGRESO,
@@ -202,13 +208,12 @@ def guardar_calificacion(
 
     detalle = _describir_cambios(existente, montos, monto_base, origen, suma)
     existente.origen = origen
-    existente.montos = montos_json
     existente.monto_base = monto_base
-    existente.factores = factores_json
     existente.suma_factores = suma
     existente.eliminada = False
     existente.modificada_por = usuario
     existente.save()
+    _guardar_detalles(existente, montos, factores)
     registrar(
         usuario,
         Registro.Operacion.MODIFICACION,
