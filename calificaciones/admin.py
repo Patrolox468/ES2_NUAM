@@ -1,6 +1,24 @@
 from django.contrib import admin
 
-from .models import Calificacion
+from .models import Calificacion, DetalleFactor
+
+
+class DetalleFactorInline(admin.TabularInline):
+    """Montos y factores de cada columna, solo para consulta."""
+
+    model = DetalleFactor
+    extra = 0
+    fields = ("columna", "monto", "factor")
+    readonly_fields = fields
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(Calificacion)
@@ -11,6 +29,7 @@ class CalificacionAdmin(admin.ModelAdmin):
     list_display = ("instrumento", "secuencia", "ejercicio", "mercado", "origen", "corredora", "eliminada")
     list_filter = ("corredora", "ejercicio", "mercado", "origen", "eliminada")
     search_fields = ("instrumento",)
+    inlines = [DetalleFactorInline]
 
     def has_add_permission(self, request):
         return False
