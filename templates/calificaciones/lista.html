@@ -42,7 +42,7 @@
   <table class="tabla">
     <thead>
       <tr><th>Ejercicio</th><th>Mercado</th><th>Instrumento</th><th>Sec.</th><th>Origen</th>
-          <th>Suma factores {{ columnas_regla.0 }}–{{ columnas_regla.1 }}</th>{% if user.perfil.puede_editar %}<th>Acciones</th>{% endif %}</tr>
+          <th>Suma factores {{ columnas_regla.0 }}–{{ columnas_regla.1 }}</th><th>Última Modificación</th>{% if user.perfil.puede_editar %}<th>Acciones</th>{% endif %}</tr>
     </thead>
     <tbody>
     {% for c in pagina %}
@@ -53,6 +53,7 @@
         <td>{{ c.secuencia }}</td>
         <td><span class="etiqueta {% if c.origen == 'BOLSA' %}gris{% endif %}">{{ c.get_origen_display }}</span></td>
         <td><span class="mono">{{ c.suma_factores|coma }}</span> <small style="color:#1b7f4b;font-weight:600">cumple</small></td>
+        <td>{{ c.modificada|date:"d-m-Y" }}</td>
         {% if user.perfil.puede_editar %}
         <td style="white-space:nowrap">
           <a href="{% url 'calificaciones:editar' c.pk %}" style="font-weight:600;text-decoration:none">Editar</a>
@@ -61,7 +62,7 @@
         {% endif %}
       </tr>
     {% empty %}
-      <tr><td colspan="7" style="text-align:center;padding:40px" class="apagado">No hay calificaciones con estos filtros.</td></tr>
+      <tr><td colspan="{% if user.perfil.puede_editar %}8{% else %}7{% endif %}" style="text-align:center;padding:40px" class="apagado">No hay calificaciones con estos filtros.</td></tr>
     {% endfor %}
     </tbody>
   </table>
