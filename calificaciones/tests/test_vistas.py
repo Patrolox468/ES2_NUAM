@@ -67,15 +67,16 @@ class AccesoYListaTests(VistasBase):
         self.assertNotContains(respuesta, "ACCION-BOREAL")
 
     def test_los_filtros_de_la_lista(self):
-        self.crear(self.analista, "ACCION-A")
-        self.crear(self.analista, "CFI-B", mercado=Mercado.CFI)
+        # Nombres distintos del ejemplo del buscador («Ej.: ACCION-ALFA»), que siempre aparece en la página.
+        self.crear(self.analista, "TITULO-UNO")
+        self.crear(self.analista, "CFI-DOS", mercado=Mercado.CFI)
         self.entrar(self.analista)
         respuesta = self.client.get(reverse("calificaciones:lista"), {"mercado": "CFI"})
-        self.assertContains(respuesta, "CFI-B")
-        self.assertNotContains(respuesta, "ACCION-A")
-        respuesta = self.client.get(reverse("calificaciones:lista"), {"q": "accion"})
-        self.assertContains(respuesta, "ACCION-A")
-        self.assertNotContains(respuesta, "CFI-B")
+        self.assertContains(respuesta, "CFI-DOS")
+        self.assertNotContains(respuesta, "TITULO-UNO")
+        respuesta = self.client.get(reverse("calificaciones:lista"), {"q": "titulo"})
+        self.assertContains(respuesta, "TITULO-UNO")
+        self.assertNotContains(respuesta, "CFI-DOS")
 
     def test_las_eliminadas_no_aparecen(self):
         calificacion = self.crear(self.analista, "ACCION-BORRADA")
@@ -84,11 +85,14 @@ class AccesoYListaTests(VistasBase):
         self.assertNotContains(self.client.get(reverse("calificaciones:lista")), "ACCION-BORRADA")
 
     def test_el_auditor_no_ve_botones_de_edicion(self):
-        self.crear(self.analista)
+        calificacion = self.crear(self.analista)
         self.entrar(self.auditor)
         respuesta = self.client.get(reverse("calificaciones:lista"))
-        self.assertNotContains(respuesta, "Nueva calificación")
-        self.assertNotContains(respuesta, "Eliminar")
+        self.assertContains(respuesta, "ACCION-ALFA")  # sí ve la calificación
+        # Se buscan los enlaces y no la palabra «Eliminar», que también está en el pie de la tabla.
+        self.assertNotContains(respuesta, reverse("calificaciones:nueva"))
+        self.assertNotContains(respuesta, reverse("calificaciones:editar", args=[calificacion.pk]))
+        self.assertNotContains(respuesta, reverse("calificaciones:eliminar", args=[calificacion.pk]))
 
 
 class FormularioTests(VistasBase):
