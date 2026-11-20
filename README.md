@@ -2,7 +2,7 @@
 
 Mantenedor de Calificaciones Tributarias para corredores de Nuam. Proyecto Integrado (TIHI43), ES3.
 
-- **Grupo:** Grupo 1
+- **Grupo:** Grupo 3
 - **Integrantes:** Miguel Cabrera, Pablo Rojas, Natalie Alveal, Patricio Lagos
 
 ## Qué hace
